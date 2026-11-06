@@ -1,0 +1,50 @@
+[
+  {
+    "id": "belly",
+    "label": "四仰八叉",
+    "image": "belly.png",
+    "chest": [
+      380,
+      282,
+      155,
+      78
+    ],
+    "amplitude": 4.5
+  },
+  {
+    "id": "buried",
+    "label": "埋头睡觉",
+    "image": "buried.png",
+    "chest": [
+      300,
+      266,
+      150,
+      100
+    ],
+    "amplitude": 3.8
+  },
+  {
+    "id": "side",
+    "label": "侧躺伸展",
+    "image": "side.png",
+    "chest": [
+      360,
+      337,
+      160,
+      60
+    ],
+    "amplitude": 3.8
+  },
+  {
+    "id": "curled",
+    "label": "蜷身枕爪",
+    "image": "curled.png",
+    "chest": [
+      310,
+      300,
+      130,
+      85
+    ],
+    "amplitude": 3.5
+  }
+]

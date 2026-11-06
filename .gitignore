@@ -1,0 +1,14 @@
+.venv/
+.local/
+__pycache__/
+*.pyc
+node_modules/
+.build-venv/
+.build/
+build/
+dist/
+release/
+.testagent/
+.DS_Store
+Thumbs.db
+desktop.ini
