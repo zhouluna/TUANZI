@@ -1,0 +1,6 @@
+# Offline interpolation only. The desktop pet does not import these.
+# Install on top of the project requirements (PySide6 bakes eye positions):
+#   python -m pip install -r requirements.txt -r scripts/requirements-interpolate.txt
+numpy==2.5.4
+pillow==13.0.0
+onnxruntime==1.31.1
