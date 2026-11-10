@@ -9,6 +9,8 @@ build/
 dist/
 release/
 .testagent/
+web/.data/
+*.db
 .DS_Store
 Thumbs.db
 desktop.ini

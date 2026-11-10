@@ -20,6 +20,8 @@ from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QSystemTrayIcon,
 
 from .animations import draw_frame, draw_long_body, load_clips
 from .butterfly import ButterflyOverlay, ButterflyScene, load_butterfly_frames
+from .chat import ChatDialog
+from .remote import RemotePlan, configured as api_configured
 from .sleeping import Nap, choose_pose, draw_sleep, load_sleep_poses
 from . import __version__
 from .runtime import data_directory, instance_server_name, resource_directory
@@ -35,6 +37,7 @@ SERVER_NAME = instance_server_name(ROOT, LOCAL)
 SIZES = {"小号": 210, "标准": 280, "大号": 370}
 BED_ENTRY_FRAMES, BED_SLEEP_FRAMES, BED_WAKE_FRAMES = 16, 32, 16
 LOG = logging.getLogger("tuanzi")
+HELP_TEXT = "拖动：移动位置\n单击：撒娇回应\n双击：和团子说话\n右键 → 自由漫游：自然慢走、停留观察、偶尔小跑\n右键 → 动作：走路、奔跑、捉蝴蝶、猫窝睡觉等\n右键 → 偶遇蝴蝶：开启 / 关闭自动捉蝴蝶场景\n右键 → 自主活动：开启 / 关闭其他随机动作\n右键 → 休息一下：在猫窝持续睡觉，再次操作唤醒\n右键 → 暂停动作：暂停 / 继续当前动作、移动和蝴蝶\n右键 → 动作 → 回到待机：停止动作，暂歇一会儿\n托盘图标：单击找回团子\n\n自然闲逛使用短距离弧线路线，逐渐加速、减速，大多数时间慢走，偶尔小跑。会在桌面工作区范围内停留和观察。自主活动的间隔有长有短，不是固定节拍。\n\n捉蝴蝶包含发现、追逐、伸爪扑捉和目送飞走，结束后恢复闲逛。拖动、打开菜单、休息或暂停时停止移动。\n\n眼睛不眨眼，平时看鼠标，捉蝴蝶时看蝴蝶；识别不到双眼的帧保留原图。打呼噜暂无声音。AI 帧间仍可能有轻微形变。\n\n位置、大小和各项开关会自动记住。设置了 TUANZI_API_URL 以后，桌面团子和网页团子共用同一个接口。"
 
 
 class PetWindow(QWidget):
@@ -98,13 +101,19 @@ class PetWindow(QWidget):
         self.menu_open = False
         self.closing = False
         self.tray = None
+        self.chat = None
+        self.remote = RemotePlan()
+        # LUNA ZHOU, 2026-11-10: a lone click still pets; a double-click cancels it and opens chat.
+        self.click_timer = QTimer(self)
+        self.click_timer.setSingleShot(True)
+        self.click_timer.timeout.connect(self.pet)
 
         self.setWindowTitle("团子 · 写实桌面宠物")
         self.setWindowFlags(self.window_flags())
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setMouseTracking(True)
         self.setCursor(Qt.CursorShape.OpenHandCursor)
-        self.setToolTip("拖动移动团子 · 单击摸摸 · 双击休息/唤醒 · 右键打开菜单")
+        self.setToolTip("拖动移动团子 · 单击摸摸 · 双击说话 · 右键打开菜单")
         self.setWindowIcon(QIcon(self.source))
         self.resize_pet()
         self.build_mesh()
@@ -121,6 +130,7 @@ class PetWindow(QWidget):
         self.greeting_timer.setInterval(45000)
         self.greeting_timer.timeout.connect(self.idle_greeting)
         self.greeting_timer.start()
+        self.remote.start()
         self.say("团子来陪你啦，右键看看吧", 5)
 
     @staticmethod
@@ -274,7 +284,20 @@ class PetWindow(QWidget):
         self.playback_rate = 1.0
         # Random short transitions rather than a fixed action list followed
         # by a long static-photo pause after every action.
-        self.next_activity = time.monotonic() + random.choices((0.0, random.uniform(.6, 1.8), random.uniform(2, 4)), weights=(7, 2, 1))[0]
+        # LUNA ZHOU, 2026-11-10: mix short, medium and long gaps. Not a fixed loop.
+        planned = getattr(self, "planned_pause", None)
+        self.planned_pause = None
+        if isinstance(planned, (int, float)) and 0.4 <= planned <= 24:
+            gap = float(planned)
+        else:
+            roll = random.random()
+            if roll < 0.45:
+                gap = random.uniform(0.4, 1.6)
+            elif roll < 0.8:
+                gap = random.uniform(2.0, 7.0)
+            else:
+                gap = random.uniform(9.0, 24.0)
+        self.next_activity = time.monotonic() + gap
         self.next_roam = time.monotonic() + random.choices((random.uniform(2, 4), random.uniform(5, 9), random.uniform(10, 16)), weights=(6, 3, 1))[0]
 
     def choose_activity(self) -> str | None:
@@ -289,6 +312,21 @@ class PetWindow(QWidget):
             return None
         varied = [choice for choice in choices if choice[0] not in self.recent_motions[-2:]] or choices
         return random.choices([name for name, _ in varied], weights=[weight for _, weight in varied])[0]
+
+    def resolve_activity(self) -> str | None:
+        """Prefer one clip the shared API already chose; otherwise the local mix."""
+        remote = getattr(self, "remote", None)
+        plan = remote.take_plan() if remote is not None else None
+        clip = plan.get("clip") if isinstance(plan, dict) else None
+        allowed = clip in self.clips or clip in {"tail", "tilt", "hop", "butterfly"}
+        if clip == "nest-breath" and clip not in self.clips:
+            allowed = False
+        if allowed:
+            pause = plan.get("pause_ms")
+            if isinstance(pause, (int, float)):
+                self.planned_pause = max(0.4, min(24.0, float(pause) / 1000))
+            return "bed" if clip == "bed" else clip
+        return self.choose_activity()
 
     def use_ambient_animation(self) -> bool:
         return not self.sleeping and not self.motion and (self.auto_actions or self.roaming_enabled) and time.monotonic() >= self.auto_resume_at and "purr" in self.clips
@@ -552,8 +590,9 @@ class PetWindow(QWidget):
         title.setEnabled(False)
         menu.addSeparator()
         menu.addAction("摸摸团子", self.pet)
+        menu.addAction("和团子说话", self.open_chat)
         movements = menu.addMenu("动作")
-        for name in ("walk", "run", "nuzzle", "eat", "wave", "purr", "ball", "groom", "groom_fur", "bed"):
+        for name in ("walk", "run", "nuzzle", "eat", "wave", "purr", "ball", "groom", "groom_fur", "bed", "nest-breath"):
             if name in self.clips:
                 movements.addAction(self.clips[name].label, lambda checked=False, value=name: self.perform_motion(value))
         if self.sleep_poses:
@@ -748,14 +787,18 @@ class PetWindow(QWidget):
             elif self.auto_actions and self.butterfly_enabled and self.butterfly_frames and "pounce" in self.clips and now >= max(self.next_butterfly, self.auto_resume_at):
                 self.start_butterfly()
             elif now >= max(self.next_activity, self.auto_resume_at):
-                activity = self.choose_activity()
+                activity = self.resolve_activity()
                 if activity:
                     self.perform_motion(activity, announce=False)
+        remote = getattr(self, "remote", None)
+        if remote is not None and not self.paused:
+            for note in remote.take_reminders():
+                self.say(note, 5)
         if self.isVisible():
             # Most completed activities chain in the same tick, so they do
             # not flash a default seated photo between every two motions.
             if not self.paused and not self.sleeping and not self.menu_open and self.drag_anchor is None and self.active_clip is None and not self.motion and time.monotonic() >= max(self.next_activity, self.auto_resume_at):
-                activity = self.choose_activity()
+                activity = self.resolve_activity()
                 if activity:
                     self.perform_motion(activity, announce=False)
             self.update()
@@ -862,13 +905,22 @@ class PetWindow(QWidget):
                 self.auto_resume_at = self.next_activity = time.monotonic() + 5.0
                 self.save_settings()
             else:
-                self.pet()
+                self.click_timer.start(220)
             event.accept()
 
     def mouseDoubleClickEvent(self, event) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
-            self.toggle_sleep()
+            # LUNA ZHOU, 2026-11-10: chat replaces the old double-click sleep toggle.
+            self.click_timer.stop()
+            self.open_chat()
             event.accept()
+
+    def open_chat(self) -> None:
+        if self.chat is None:
+            self.chat = ChatDialog(self)
+        self.chat.show()
+        self.chat.raise_()
+        self.chat.activateWindow()
 
     def contextMenuEvent(self, event) -> None:
         self.menu_open = True
@@ -895,13 +947,14 @@ class PetWindow(QWidget):
             image.save(str(LOCAL / "scene-preview.png"))
 
     def show_help(self) -> None:
-        QMessageBox.information(self, "团子 · 使用说明", "拖动：移动位置\n单击：撒娇回应\n双击：休息 / 唤醒\n右键 → 自由漫游：自然慢走、停留观察、偶尔小跑\n右键 → 动作：走路、奔跑、捉蝴蝶、猫窝睡觉等\n右键 → 偶遇蝴蝶：开启 / 关闭自动捉蝴蝶场景\n右键 → 自主活动：开启 / 关闭其他随机动作\n右键 → 休息一下：在猫窝持续睡觉，再次操作唤醒\n右键 → 暂停动作：暂停 / 继续当前动作、移动和蝴蝶\n右键 → 动作 → 回到待机：停止动作，暂歇 8 秒\n托盘图标：单击找回团子\n\n自然闲逛使用短距离弧线路线，逐渐加速、减速，大多数时间慢走，偶尔小跑。会在桌面工作区范围内停留和观察。\n\n捉蝴蝶包含发现、追逐、伸爪扑捉和目送飞走，结束后恢复闲逛。拖动、打开菜单、休息或暂停时停止移动。\n\n眼睛不眨眼，平时看鼠标，捉蝴蝶时看蝴蝶；识别不到双眼的帧保留原图。打呼噜暂无声音。AI 帧间仍可能有轻微形变。\n\n位置、大小和各项开关会自动记住。")
+        QMessageBox.information(self, "团子 · 使用说明", HELP_TEXT)
 
     def status(self) -> dict:
         status = {"running": True, "pid": os.getpid(), "visible": self.isVisible(), "minimized": self.isMinimized(), "size": self.pet_height, "position": [self.x(), self.y()], "on_top": self.on_top, "paused": self.paused, "sleeping": self.sleeping, "motion": self.motion, "gaze": [round(self.gaze_x, 3), round(self.gaze_y, 3)], "ai_actions": list(self.clips), "active_clip": self.active_clip.name if self.active_clip else None, "frame": self.active_clip.frame_index(self.clip_elapsed) if self.active_clip else None, "clip_elapsed": round(self.clip_elapsed, 3), "auto_actions": self.auto_actions, "roaming_enabled": self.roaming_enabled, "walk_target": [round(self.walk_target.x()), round(self.walk_target.y())] if self.walk_target is not None else None, "walking_bounds": self.walking_bounds(), "walking_speed": round(self.walk_speed, 1), "butterfly_enabled": self.butterfly_enabled, "butterfly_stage": self.butterfly_scene.stage if self.butterfly_scene is not None else None, "butterfly_elapsed": round(self.butterfly_scene.elapsed, 2) if self.butterfly_scene is not None else None, "butterfly_position": [round(self.butterfly_scene.position.x()), round(self.butterfly_scene.position.y())] if self.butterfly_scene is not None else None, "artwork_sha256": hashlib.sha256(ARTWORK.read_bytes()).hexdigest()}
         ambient = self.active_clip is None and self.use_ambient_animation()
         status.update({"recent_actions": list(self.recent_motions), "ambient_animation": "purr" if ambient else None, "ambient_frame": self.clips["purr"].frame_index(self.ambient_elapsed) if ambient else None, "facing": self.walk_direction, "playback_rate": round(self.playback_rate, 3), "next_activity_in": round(max(0.0, max(self.next_activity, self.auto_resume_at) - time.monotonic()), 2)})
         status.update({"rest_elapsed": round(self.rest_elapsed, 3), "bed_rest_frame": self.clips["bed"].frame_index(self.bed_rest_time()) if self.sleeping and self.nap is None and "bed" in self.clips else None})
+        status.update({"api_configured": api_configured(), "chat_open": bool(self.chat and self.chat.isVisible())})
         status.update({"sleep_pose": self.nap.pose.name if self.nap else None,
                        "sleep_pose_label": self.nap.pose.label if self.nap else None,
                        "sleep_duration": round(self.nap.duration, 2) if self.nap and self.nap.duration is not None else None,
@@ -924,6 +977,7 @@ class PetWindow(QWidget):
             "standard": lambda: self.change_size(280),
             "large": lambda: self.change_size(370),
             "snapshot": self.save_snapshot,
+            "chat": self.open_chat,
         }
         callback = actions.get(action)
         if callback:
@@ -935,6 +989,8 @@ class PetWindow(QWidget):
         self.closing = True
         self.end_butterfly()
         self.save_settings()
+        if getattr(self, "remote", None) is not None:
+            self.remote.stop()
         self.timer.stop()
         if self.tray:
             self.tray.hide()
@@ -967,7 +1023,7 @@ def main() -> int:
     parser.add_argument("--report", type=Path, help="将运行状态或自检结果写入 JSON 文件")
     parser.add_argument("--status", action="store_true", help="读取运行状态")
     parser.add_argument("--quit", action="store_true", help="退出正在运行的团子")
-    parser.add_argument("--action", choices=("home", "pet", "rest", "pause", "stop", "auto", "roam-on", "roam-off", "small", "standard", "large", "snapshot", "tail", "tilt", "hop", "nuzzle", "walk", "run", "eat", "wave", "purr", "ball", "groom", "groom_fur", "bed", "bed-belly", "bed-buried", "bed-side", "bed-curled", "butterfly", "butterfly-auto"), help="向正在运行的团子发送动作；snapshot 导出应用自身渲染预览")
+    parser.add_argument("--action", choices=("home", "pet", "rest", "pause", "stop", "auto", "roam-on", "roam-off", "small", "standard", "large", "snapshot", "chat", "tail", "tilt", "hop", "nuzzle", "walk", "run", "eat", "wave", "purr", "ball", "groom", "groom_fur", "bed", "bed-belly", "bed-buried", "bed-side", "bed-curled", "butterfly", "butterfly-auto"), help="向正在运行的团子发送动作；snapshot 导出应用自身渲染预览")
     options = parser.parse_args()
     LOCAL.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(filename=LOCAL / "tuanzi.log", encoding="utf-8", level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

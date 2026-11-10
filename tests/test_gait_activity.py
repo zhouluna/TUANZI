@@ -73,7 +73,7 @@ class GaitActivityTests(unittest.TestCase):
         PetWindow.finish_clip(cat)
         self.assertIsNone(cat.active_clip)
         self.assertGreaterEqual(cat.next_activity, start)
-        self.assertLessEqual(cat.next_activity - start, 5.05)
+        self.assertLessEqual(cat.next_activity - start, 24.5)
         self.assertTrue(PetWindow.use_ambient_animation(cat))
         cat.auto_resume_at = time.monotonic() + 8
         self.assertFalse(PetWindow.use_ambient_animation(cat))

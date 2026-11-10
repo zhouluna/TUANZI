@@ -57,7 +57,8 @@
 | --- | --- |
 | 单击团子 | 撒娇和文字气泡 |
 | 按住左键拖动 | 调整桌面位置 |
-| 双击团子 | 休息 / 唤醒 |
+| 双击团子 | 和团子说话 |
+| 右键 → 休息一下 | 睡觉 / 唤醒 |
 | 移动鼠标 | 清醒时眼珠跟随 |
 | 右键 → 动作 | 选择走路、小跑、捉蝴蝶、梳理、睡觉等动作 |
 | 右键 → 动作 → 选择睡姿 | 指定喜欢的睡姿 |
@@ -81,6 +82,13 @@ Windows：首次双击 `setup-pet.cmd` 安装依赖并启动；以后双击 `sta
 ```bash
 python -m pip install -r requirements.txt
 python -m desktop_pet
+```
+
+网页宠物和共用 API 见 [docs/web.md](docs/web.md)：
+
+```bash
+python -m pip install -r web/requirements.txt
+python web/startup-app.sh
 ```
 
 向正在运行的团子发送指令：
