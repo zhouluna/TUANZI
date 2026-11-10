@@ -52,9 +52,7 @@ python -m unittest discover -s web/tests -v
 
 ## 以后的两段试播视频
 
-舔爪洗脸继续用动作 `groom`：换成直通 alpha 的 PNG（高 512，宽 512–1024，每帧 12–1000 毫秒）并改清单即可，加载器不用动。
-
-猫窝呼吸预留 id `nest-breath`，一整圈约 4.8 秒。目录里现在是 `available: false`，没有占位视频。帧到位并写进 `assets/animations/manifest.json` 之后，网页和桌面菜单都会播它。
+舔爪洗脸和猫窝呼吸已经接上两段抠好的实拍。以后再加动作见 [抠像导入](keyed-clips.md)。没有新视频时，`nest-breath` 不在清单里，网页会把它标成不可用，睡觉退回原来的静图。
 
 ## 部署到 Uppcoder Spark
 

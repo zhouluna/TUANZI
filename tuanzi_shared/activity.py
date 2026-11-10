@@ -31,6 +31,11 @@ PAUSE_MIN_MS = 400
 PAUSE_MAX_MS = 24000
 
 
+def sleep_uses_recorded_breath(requested_pose: str, available: set[str]) -> bool:
+    """Default rest uses the keyed nest loop. An explicit pose keeps the still."""
+    return not requested_pose and "nest-breath" in available
+
+
 def clip_allowed(name: str, available: set[str] | None = None) -> bool:
     if name not in LIBRARY_IDS and name != "nest-breath":
         return False
@@ -55,7 +60,14 @@ def plan_steps(recent: list[str] | None = None, count: int = 3,
     rng = rng or random
     history = list(recent or [])
     steps = []
-    pool = [(name, weight) for name, weight in WEIGHTS if available is None or name in available]
+    pool = []
+    for name, weight in WEIGHTS:
+        # A real nest-breath loop replaces the still-bed choice. The weight stays.
+        if name == "bed" and available is not None and "nest-breath" in available:
+            pool.append(("nest-breath", weight))
+            continue
+        if available is None or name in available:
+            pool.append((name, weight))
     if not pool:
         return []
     for _ in range(count):

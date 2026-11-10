@@ -25,7 +25,6 @@ SPARSE_ACTIONS = {
     "ball": (12, 140),
     "pounce": (12, 105),
     "groom_fur": (8, 220),
-    "groom": (16, 180),
 }
 
 
@@ -145,6 +144,24 @@ class PetActionTests(unittest.TestCase):
                 sampled = clip.frames[factor // 2].toImage()
                 detected = [[round(float(part), 4) for part in eye] for eye in locate_eyes(sampled)]
                 self.assertEqual(detected, entry["eye_positions"][factor // 2])
+        for name, frames, width, extended in (("groom", 144, 512, False), ("nest-breath", 120, 774, True)):
+            clip = clips[name]
+            entry = by_id[name]
+            self.assertEqual(len(clip.frames), frames)
+            self.assertEqual(clip.duration_ms, 42)
+            self.assertEqual(clip.seconds, frames * 42 / 1000)
+            self.assertEqual(clip.frames[0].width(), width)
+            self.assertEqual(clip.frames[0].height(), 512)
+            self.assertEqual(clip.body_extended, extended)
+            self.assertEqual(len(entry["eye_positions"]), frames)
+            sample = clip.frames[frames // 2].toImage().convertToFormat(QImage.Format.Format_RGBA8888)
+            self.assertEqual(sample.pixelColor(0, 0).alpha(), 0)
+            self.assertGreater(opaque_samples(sample), 40)
+            self.assertLess(green_spill(sample), 8)
+        self.assertTrue((animations / "frames/groom/000.png").is_file())
+        self.assertTrue((animations / "keyframes/groom/00.png").is_file())
+        self.assertTrue((animations / "sources/groom.mp4").is_file())
+        self.assertTrue((animations / "sources/nest-breath.mp4").is_file())
         for name, count, delay in (("walk", 64, 16), ("run", 48, 16), ("bed", 1, 1000)):
             self.assertEqual(len(clips[name].frames), count)
             self.assertEqual(clips[name].duration_ms, delay)
@@ -166,6 +183,19 @@ def rgba_digest(image: QImage) -> str:
     width = image.width()
     rows = [bytes(image.constScanLine(y))[:width * 4] for y in range(image.height())]
     return hashlib.sha256(b"".join(rows)).hexdigest()
+
+
+def green_spill(image: QImage) -> float:
+    total = 0.0
+    count = 0
+    for y in range(0, image.height(), 4):
+        for x in range(0, image.width(), 4):
+            color = image.pixelColor(x, y)
+            if color.alpha() < 220:
+                continue
+            total += color.green() - max(color.red(), color.blue())
+            count += 1
+    return total / count if count else 99.0
 
 
 def opaque_samples(image: QImage) -> int:

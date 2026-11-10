@@ -1,7 +1,9 @@
 """Timing plan for offline in-place interpolation."""
 
+import random
 import unittest
 
+from tuanzi_shared.activity import plan_steps, sleep_uses_recorded_breath
 from scripts.interpolate_plan import (
     choose_factor,
     frame_delay,
@@ -40,6 +42,15 @@ class InterpolationPlanTests(unittest.TestCase):
         self.assertEqual((choose_factor(105), frame_delay(105, choose_factor(105))), (3, 35))
         self.assertTrue(loops_back_to_start("groom"))
         self.assertFalse(loops_back_to_start("pounce"))
+
+    def test_recorded_nest_breath_replaces_the_still_bed(self):
+        steps = plan_steps(["walk"], 16, available={"walk", "groom", "nest-breath"}, rng=random.Random(4))
+        chosen = {step["clip"] for step in steps}
+        self.assertIn("nest-breath", chosen)
+        self.assertNotIn("bed", chosen)
+        self.assertTrue(sleep_uses_recorded_breath("", {"nest-breath"}))
+        self.assertFalse(sleep_uses_recorded_breath("belly", {"nest-breath"}))
+        self.assertFalse(sleep_uses_recorded_breath("", set()))
 
     def test_dense_and_unsplittable_delays_are_rejected(self):
         with self.assertRaises(ValueError):

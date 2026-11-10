@@ -140,7 +140,7 @@ async function autonomous() {
       });
       const step = await response.json();
       state.recent.push(step.clip);
-      if (step.clip === "bed") {
+      if (step.clip === "bed" || step.clip === "nest-breath") {
         startSleep();
       } else {
         await playClip(step.clip);
@@ -159,6 +159,7 @@ function startSleep() {
   pet.classList.add("sleep");
   const nest = clipById("nest-breath");
   if (nest) {
+    pet.classList.remove("sleep");
     playNest(nest);
     return;
   }

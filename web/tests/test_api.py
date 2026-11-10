@@ -85,12 +85,13 @@ class ApiTests(unittest.TestCase):
         self.assertGreaterEqual(len(set(clips)), 2)
         catalog = self.client.get("/api/clips").json()
         nest = next(item for item in catalog["clips"] if item["id"] == "nest-breath")
-        self.assertFalse(nest["available"])
-        self.assertEqual(nest["cycle_ms"], 4800)
+        self.assertTrue(nest["available"])
+        self.assertEqual(nest["duration_ms"], 42)
+        self.assertEqual(len(nest["frames"]), 120)
         groom = next(item for item in catalog["clips"] if item["id"] == "groom")
         self.assertTrue(groom["available"])
-        self.assertGreaterEqual(groom["duration_ms"], 12)
-        self.assertLessEqual(groom["duration_ms"], 1000)
+        self.assertEqual(groom["duration_ms"], 42)
+        self.assertEqual(len(groom["frames"]), 144)
 
     def test_actions_are_allowlisted(self):
         self.auth()

@@ -18,6 +18,7 @@ from PySide6.QtGui import QAction, QActionGroup, QColor, QCursor, QFont, QIcon, 
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QSystemTrayIcon, QWidget
 
+from tuanzi_shared.activity import sleep_uses_recorded_breath
 from .animations import draw_frame, draw_long_body, load_clips
 from .butterfly import ButterflyOverlay, ButterflyScene, load_butterfly_frames
 from .chat import ChatDialog
@@ -102,6 +103,7 @@ class PetWindow(QWidget):
         self.closing = False
         self.tray = None
         self.chat = None
+        self.nest_breathing = False
         self.remote = RemotePlan()
         # LUNA ZHOU, 2026-11-10: a lone click still pets; a double-click cancels it and opens chat.
         self.click_timer = QTimer(self)
@@ -243,6 +245,8 @@ class PetWindow(QWidget):
         requested_pose = motion[4:] if motion.startswith("bed-") else ""
         if requested_pose:
             motion = "bed"
+        if motion == "nest-breath":
+            motion = "bed"
         if motion == "butterfly":
             self.start_butterfly()
             return
@@ -262,6 +266,11 @@ class PetWindow(QWidget):
             self.last_sleep_pose = pose.name
             self.nap = Nap(pose, random.uniform(45, 90))
             self.rest_elapsed = 0.0
+            # LUNA ZHOU, 2026-11-10: a keyed nest loop replaces the chest morph
+            # unless the user asked for one of the still poses.
+            self.nest_breathing = sleep_uses_recorded_breath(requested_pose, set(self.clips))
+            if self.nest_breathing:
+                self.active_clip = self.clips.get("nest-breath")
         if motion in ("walk", "run"):
             self.choose_walk_target()
         else:
@@ -277,6 +286,7 @@ class PetWindow(QWidget):
             self.save_settings()
         self.active_clip = None
         self.nap = None
+        self.nest_breathing = False
         self.clip_elapsed = 0.0
         self.motion = ""
         self.walk_target = None
@@ -833,7 +843,13 @@ class PetWindow(QWidget):
             render_elapsed = self.bed_rest_time()
         elif render_clip is None and self.use_ambient_animation():
             render_clip, render_elapsed = self.clips["purr"], self.ambient_elapsed
-        if self.nap is not None and (self.sleeping or self.motion == "bed"):
+        nest = self.clips.get("nest-breath") if getattr(self, "nest_breathing", False) else None
+        if self.nap is not None and (self.sleeping or self.motion == "bed") and nest is not None:
+            side = self.pet_height * 512 / 448
+            frame_width = nest.frames[0].width() / 512 * side
+            target = QRectF((self.width() - frame_width) / 2, self.height() - 13 - side * 480 / 512, frame_width, side)
+            draw_frame(painter, nest, nest.frame_index(self.nap.elapsed), target, 0.0, 0.0)
+        elif self.nap is not None and (self.sleeping or self.motion == "bed"):
             side = self.pet_height * 512 / 448
             target = QRectF((self.width() - side * 1.5) / 2, self.height() - 13 - side * 480 / 512, side * 1.5, side)
             draw_sleep(painter, self.nap, target)
