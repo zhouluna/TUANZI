@@ -1,0 +1,529 @@
+{
+  "groom": {
+    "id": "groom",
+    "label": "舔爪洗脸",
+    "duration": 180,
+    "frames": [
+      "frames/groom/00.png",
+      "frames/groom/01.png",
+      "frames/groom/02.png",
+      "frames/groom/03.png",
+      "frames/groom/04.png",
+      "frames/groom/05.png",
+      "frames/groom/06.png",
+      "frames/groom/07.png",
+      "frames/groom/08.png",
+      "frames/groom/09.png",
+      "frames/groom/10.png",
+      "frames/groom/11.png",
+      "frames/groom/12.png",
+      "frames/groom/13.png",
+      "frames/groom/14.png",
+      "frames/groom/15.png"
+    ]
+  },
+  "nuzzle": {
+    "id": "nuzzle",
+    "label": "撒娇",
+    "duration": 150,
+    "description": "抬头、轻轻抬爪，向你撒娇。",
+    "frames": [
+      "frames/nuzzle/00.png",
+      "frames/nuzzle/01.png",
+      "frames/nuzzle/02.png",
+      "frames/nuzzle/03.png",
+      "frames/nuzzle/04.png",
+      "frames/nuzzle/05.png",
+      "frames/nuzzle/06.png",
+      "frames/nuzzle/07.png",
+      "frames/nuzzle/08.png",
+      "frames/nuzzle/09.png",
+      "frames/nuzzle/10.png",
+      "frames/nuzzle/11.png"
+    ],
+    "source_bounds": [
+      [
+        23,
+        5,
+        361,
+        361
+      ],
+      [
+        0,
+        3,
+        361,
+        361
+      ],
+      [
+        0,
+        4,
+        361,
+        361
+      ],
+      [
+        0,
+        8,
+        342,
+        361
+      ],
+      [
+        14,
+        0,
+        361,
+        361
+      ],
+      [
+        0,
+        0,
+        361,
+        361
+      ],
+      [
+        0,
+        0,
+        361,
+        361
+      ],
+      [
+        0,
+        0,
+        345,
+        361
+      ],
+      [
+        21,
+        0,
+        361,
+        349
+      ],
+      [
+        0,
+        0,
+        361,
+        350
+      ],
+      [
+        0,
+        0,
+        361,
+        350
+      ],
+      [
+        0,
+        0,
+        340,
+        348
+      ]
+    ]
+  },
+  "eat": {
+    "id": "eat",
+    "label": "吃东西",
+    "duration": 160,
+    "description": "低头吃猫粮，抬头舔舔嘴。",
+    "frames": [
+      "frames/eat/00.png",
+      "frames/eat/01.png",
+      "frames/eat/02.png",
+      "frames/eat/03.png",
+      "frames/eat/04.png",
+      "frames/eat/05.png",
+      "frames/eat/06.png",
+      "frames/eat/07.png",
+      "frames/eat/08.png",
+      "frames/eat/09.png",
+      "frames/eat/10.png",
+      "frames/eat/11.png"
+    ],
+    "source_bounds": [
+      [
+        13,
+        33,
+        360,
+        342
+      ],
+      [
+        16,
+        73,
+        359,
+        342
+      ],
+      [
+        19,
+        73,
+        355,
+        342
+      ],
+      [
+        16,
+        74,
+        344,
+        343
+      ],
+      [
+        18,
+        72,
+        354,
+        343
+      ],
+      [
+        20,
+        73,
+        356,
+        343
+      ],
+      [
+        20,
+        73,
+        355,
+        343
+      ],
+      [
+        17,
+        73,
+        349,
+        343
+      ],
+      [
+        18,
+        70,
+        359,
+        343
+      ],
+      [
+        20,
+        70,
+        351,
+        343
+      ],
+      [
+        16,
+        21,
+        349,
+        343
+      ],
+      [
+        16,
+        4,
+        343,
+        343
+      ]
+    ]
+  },
+  "wave": {
+    "id": "wave",
+    "label": "招手",
+    "duration": 130,
+    "description": "抬起前爪，轻轻打个招呼。",
+    "frames": [
+      "frames/wave/00.png",
+      "frames/wave/01.png",
+      "frames/wave/02.png",
+      "frames/wave/03.png",
+      "frames/wave/04.png",
+      "frames/wave/05.png",
+      "frames/wave/06.png",
+      "frames/wave/07.png",
+      "frames/wave/08.png",
+      "frames/wave/09.png",
+      "frames/wave/10.png",
+      "frames/wave/11.png"
+    ],
+    "source_bounds": [
+      [
+        36,
+        5,
+        352,
+        355
+      ],
+      [
+        26,
+        5,
+        322,
+        351
+      ],
+      [
+        13,
+        4,
+        314,
+        351
+      ],
+      [
+        23,
+        4,
+        324,
+        351
+      ],
+      [
+        38,
+        1,
+        361,
+        348
+      ],
+      [
+        0,
+        1,
+        350,
+        348
+      ],
+      [
+        21,
+        1,
+        336,
+        348
+      ],
+      [
+        18,
+        2,
+        323,
+        361
+      ],
+      [
+        36,
+        0,
+        352,
+        344
+      ],
+      [
+        37,
+        3,
+        344,
+        343
+      ],
+      [
+        26,
+        1,
+        338,
+        346
+      ],
+      [
+        22,
+        0,
+        331,
+        346
+      ]
+    ]
+  },
+  "purr": {
+    "id": "purr",
+    "label": "打呼噜",
+    "duration": 180,
+    "description": "安静坐着，胸口和头部轻微起伏；无声音。",
+    "frames": [
+      "frames/purr/00.png",
+      "frames/purr/01.png",
+      "frames/purr/02.png",
+      "frames/purr/03.png",
+      "frames/purr/04.png",
+      "frames/purr/05.png",
+      "frames/purr/06.png",
+      "frames/purr/07.png",
+      "frames/purr/08.png",
+      "frames/purr/09.png",
+      "frames/purr/10.png",
+      "frames/purr/11.png"
+    ],
+    "source_bounds": [
+      [
+        26,
+        4,
+        361,
+        361
+      ],
+      [
+        22,
+        6,
+        354,
+        361
+      ],
+      [
+        18,
+        4,
+        352,
+        361
+      ],
+      [
+        13,
+        5,
+        345,
+        361
+      ],
+      [
+        23,
+        0,
+        361,
+        361
+      ],
+      [
+        0,
+        0,
+        361,
+        361
+      ],
+      [
+        0,
+        0,
+        356,
+        361
+      ],
+      [
+        25,
+        0,
+        356,
+        361
+      ],
+      [
+        28,
+        0,
+        361,
+        356
+      ],
+      [
+        0,
+        0,
+        357,
+        356
+      ],
+      [
+        19,
+        0,
+        353,
+        355
+      ],
+      [
+        10,
+        0,
+        345,
+        355
+      ]
+    ]
+  },
+  "ball": {
+    "id": "ball",
+    "label": "玩猫球",
+    "duration": 140,
+    "description": "伸爪轻拨蓝色小球。",
+    "frames": [
+      "frames/ball/00.png",
+      "frames/ball/01.png",
+      "frames/ball/02.png",
+      "frames/ball/03.png",
+      "frames/ball/04.png",
+      "frames/ball/05.png",
+      "frames/ball/06.png",
+      "frames/ball/07.png",
+      "frames/ball/08.png",
+      "frames/ball/09.png",
+      "frames/ball/10.png",
+      "frames/ball/11.png"
+    ],
+    "source_bounds": [
+      [
+        25,
+        25,
+        340,
+        345
+      ],
+      [
+        28,
+        26,
+        328,
+        348
+      ],
+      [
+        31,
+        26,
+        333,
+        351
+      ],
+      [
+        10,
+        16,
+        336,
+        353
+      ],
+      [
+        27,
+        15,
+        361,
+        342
+      ],
+      [
+        0,
+        17,
+        352,
+        345
+      ],
+      [
+        21,
+        13,
+        330,
+        349
+      ],
+      [
+        17,
+        35,
+        330,
+        343
+      ],
+      [
+        36,
+        27,
+        348,
+        327
+      ],
+      [
+        47,
+        6,
+        329,
+        325
+      ],
+      [
+        33,
+        16,
+        336,
+        330
+      ],
+      [
+        24,
+        8,
+        336,
+        334
+      ]
+    ]
+  },
+  "pounce": {
+    "id": "pounce",
+    "label": "伸爪扑捉",
+    "duration": 105,
+    "frames": [
+      "frames/pounce/00.png",
+      "frames/pounce/01.png",
+      "frames/pounce/02.png",
+      "frames/pounce/03.png",
+      "frames/pounce/04.png",
+      "frames/pounce/05.png",
+      "frames/pounce/06.png",
+      "frames/pounce/07.png",
+      "frames/pounce/08.png",
+      "frames/pounce/09.png",
+      "frames/pounce/10.png",
+      "frames/pounce/11.png"
+    ]
+  },
+  "groom_fur": {
+    "id": "groom_fur",
+    "label": "舔毛",
+    "duration": 220,
+    "frames": [
+      "frames/groom_fur/00.png",
+      "frames/groom_fur/01.png",
+      "frames/groom_fur/02.png",
+      "frames/groom_fur/03.png",
+      "frames/groom_fur/04.png",
+      "frames/groom_fur/05.png",
+      "frames/groom_fur/06.png",
+      "frames/groom_fur/07.png"
+    ]
+  }
+}

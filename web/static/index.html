@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4efe6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="团子">
+  <title>团子</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/media/sprites/tuanzi-approved.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="gate" class="gate hidden">
+    <form id="gate-form">
+      <p>团子在等口令</p>
+      <input id="password" type="password" autocomplete="current-password" placeholder="访问口令" required>
+      <button type="submit">进来</button>
+      <p id="gate-error" class="error"></p>
+    </form>
+  </div>
+  <main id="stage">
+    <p id="bubble" class="bubble hidden"></p>
+    <button id="pet" type="button" aria-label="团子">
+      <img id="sprite" alt="团子" src="/media/sprites/tuanzi-approved.png">
+    </button>
+    <p id="status" class="status"></p>
+  </main>
+  <button id="menu-button" type="button" aria-label="菜单">菜单</button>
+  <nav id="menu" class="menu hidden">
+    <button type="button" data-act="chat">和团子说话</button>
+    <button type="button" data-act="sleep">休息一下</button>
+    <button type="button" data-act="groom">舔爪洗脸</button>
+    <button type="button" data-act="butterfly">捉蝴蝶</button>
+    <button type="button" data-act="wake">醒一醒</button>
+  </nav>
+  <section id="chat" class="chat hidden" aria-label="和团子说话">
+    <header>
+      <strong>和团子说话</strong>
+      <button id="chat-close" type="button">关闭</button>
+    </header>
+    <div id="log"></div>
+    <form id="composer">
+      <input id="line" maxlength="500" placeholder="跟团子说一句" autocomplete="off">
+      <button id="voice" type="button">说话</button>
+      <button type="submit">发送</button>
+    </form>
+    <p id="voice-note" class="note"></p>
+  </section>
+  <script src="/static/app.js"></script>
+</body>
+</html>

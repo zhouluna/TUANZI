@@ -1,0 +1,155 @@
+{
+  "model": {
+    "name": "Practical-RIFE 4.9 (ONNX, MIT)",
+    "url": "https://huggingface.co/edgetools/rife/resolve/main/rife49.onnx",
+    "sha256": "76e4cef9ab42fa7dd4e8f6e4aba47462051e3faa969e4bca6479784fbab0ac6f"
+  },
+  "delay_policy_ms": {
+    "min": 20,
+    "max": 40,
+    "target": 30
+  },
+  "unchanged": {
+    "walk": "64 frames at 16 ms, with stride_pixels tied to window motion.",
+    "run": "48 frames at 16 ms, with stride_pixels tied to window motion.",
+    "bed": "One still. Naps breathe by deforming the chest of a sleep pose, not by cycling frames."
+  },
+  "clips": {
+    "groom": {
+      "loop": true,
+      "factor": 6,
+      "before": {
+        "frames": 16,
+        "duration_ms": 180,
+        "cycle_ms": 2880
+      },
+      "after": {
+        "frames": 96,
+        "duration_ms": 30,
+        "cycle_ms": 2880
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.02544
+    },
+    "nuzzle": {
+      "loop": true,
+      "factor": 5,
+      "before": {
+        "frames": 12,
+        "duration_ms": 150,
+        "cycle_ms": 1800
+      },
+      "after": {
+        "frames": 60,
+        "duration_ms": 30,
+        "cycle_ms": 1800
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.02252
+    },
+    "eat": {
+      "loop": true,
+      "factor": 5,
+      "before": {
+        "frames": 12,
+        "duration_ms": 160,
+        "cycle_ms": 1920
+      },
+      "after": {
+        "frames": 60,
+        "duration_ms": 32,
+        "cycle_ms": 1920
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.02326
+    },
+    "wave": {
+      "loop": true,
+      "factor": 5,
+      "before": {
+        "frames": 12,
+        "duration_ms": 130,
+        "cycle_ms": 1560
+      },
+      "after": {
+        "frames": 60,
+        "duration_ms": 26,
+        "cycle_ms": 1560
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.01863
+    },
+    "purr": {
+      "loop": true,
+      "factor": 6,
+      "before": {
+        "frames": 12,
+        "duration_ms": 180,
+        "cycle_ms": 2160
+      },
+      "after": {
+        "frames": 72,
+        "duration_ms": 30,
+        "cycle_ms": 2160
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.0186
+    },
+    "ball": {
+      "loop": true,
+      "factor": 5,
+      "before": {
+        "frames": 12,
+        "duration_ms": 140,
+        "cycle_ms": 1680
+      },
+      "after": {
+        "frames": 60,
+        "duration_ms": 28,
+        "cycle_ms": 1680
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.02978
+    },
+    "pounce": {
+      "loop": false,
+      "factor": 3,
+      "before": {
+        "frames": 12,
+        "duration_ms": 105,
+        "cycle_ms": 1260
+      },
+      "after": {
+        "frames": 36,
+        "duration_ms": 35,
+        "cycle_ms": 1260
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.02811
+    },
+    "groom_fur": {
+      "loop": true,
+      "factor": 10,
+      "before": {
+        "frames": 8,
+        "duration_ms": 220,
+        "cycle_ms": 1760
+      },
+      "after": {
+        "frames": 80,
+        "duration_ms": 22,
+        "cycle_ms": 1760
+      },
+      "rejected_frames": 0,
+      "rejected": [],
+      "max_partial_alpha": 0.01503
+    }
+  }
+}

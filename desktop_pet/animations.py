@@ -94,6 +94,38 @@ def locate_eyes(image: QImage) -> list[tuple[float, float, float, float]]:
     return []
 
 
+def baked_eyes(entry: dict, frame_count: int) -> list[list[tuple[float, float, float, float]]] | None:
+    """Use eye boxes baked with the dense frames, or None when they are absent.
+
+    LUNA ZHOU, 2026-11-10: scanning every interpolated frame at startup repeats
+    work the offline pipeline can do once. A missing or unusable cache falls
+    back to locating the eyes from the picture.
+    """
+    raw = entry.get("eye_positions")
+    if raw is None:
+        return None
+    if not isinstance(raw, list) or len(raw) != frame_count:
+        LOG.warning("忽略 %s 的眼位缓存：数量与帧不一致", entry.get("id"))
+        return None
+    parsed = []
+    for frame_eyes in raw:
+        if not isinstance(frame_eyes, list) or len(frame_eyes) > 2:
+            LOG.warning("忽略 %s 的眼位缓存：格式无效", entry.get("id"))
+            return None
+        pair = []
+        for eye in frame_eyes:
+            if not isinstance(eye, (list, tuple)) or len(eye) != 4:
+                LOG.warning("忽略 %s 的眼位缓存：格式无效", entry.get("id"))
+                return None
+            try:
+                pair.append(tuple(float(part) for part in eye))
+            except (TypeError, ValueError):
+                LOG.warning("忽略 %s 的眼位缓存：格式无效", entry.get("id"))
+                return None
+        parsed.append(pair)
+    return parsed
+
+
 def load_clips(folder: Path) -> dict[str, Clip]:
     try:
         manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
@@ -105,7 +137,9 @@ def load_clips(folder: Path) -> dict[str, Clip]:
     for entry in manifest:
         try:
             frames, eyes = [], []
-            for relative in entry["frames"]:
+            # LUNA ZHOU, 2026-11-10: dense interpolated clips ship baked eyes.
+            baked = baked_eyes(entry, len(entry["frames"]))
+            for index, relative in enumerate(entry["frames"]):
                 path = (folder / relative).resolve()
                 if not path.is_relative_to(folder.resolve()):
                     raise ValueError("Frame path outside asset folder")
@@ -115,10 +149,10 @@ def load_clips(folder: Path) -> dict[str, Clip]:
                     image = QImage(str(path))
                     if image.isNull() or not 512 <= image.width() <= 1024 or image.height() != 512:
                         raise ValueError(f"Invalid animation frame: {path}")
-                    frame_cache[path] = (QPixmap.fromImage(image), locate_eyes(image))
-                frame, eye_positions = frame_cache[path]
+                    frame_cache[path] = (QPixmap.fromImage(image), None if baked is not None else locate_eyes(image))
+                frame, detected = frame_cache[path]
                 frames.append(frame)
-                eyes.append(eye_positions)
+                eyes.append(baked[index] if baked is not None else detected)
             duration = int(entry["duration"])
             if not frames or not 12 <= duration <= 1000:
                 raise ValueError("Invalid frame count or duration")

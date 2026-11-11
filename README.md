@@ -57,7 +57,8 @@
 | --- | --- |
 | 单击团子 | 撒娇和文字气泡 |
 | 按住左键拖动 | 调整桌面位置 |
-| 双击团子 | 休息 / 唤醒 |
+| 双击团子 | 和团子说话 |
+| 右键 → 休息一下 | 睡觉 / 唤醒 |
 | 移动鼠标 | 清醒时眼珠跟随 |
 | 右键 → 动作 | 选择走路、小跑、捉蝴蝶、梳理、睡觉等动作 |
 | 右键 → 动作 → 选择睡姿 | 指定喜欢的睡姿 |
@@ -83,6 +84,13 @@ python -m pip install -r requirements.txt
 python -m desktop_pet
 ```
 
+网页宠物和共用 API 见 [docs/web.md](docs/web.md)：
+
+```bash
+python -m pip install -r web/requirements.txt
+python web/startup-app.sh
+```
+
 向正在运行的团子发送指令：
 
 ```bash
@@ -104,9 +112,9 @@ python -m desktop_pet --quit
 ```text
 desktop_pet/          宠物窗口、随机活动、眼球、蝴蝶与睡眠
 assets/               已确认形象和程序实际使用的动作素材
-docs/images/          README 动作预览
+docs/                 动作预览，以及补帧与试播素材说明
 packaging/            原生打包配置、依赖和第三方许可文本
-scripts/              发布构建与产物验证
+scripts/              发布构建、产物验证、原地动作离线补帧
 tests/                行为及打包回归检查
 .github/workflows/    Windows / macOS 手动构建工作流
 DEPLOY.md             完整部署说明
@@ -116,6 +124,6 @@ DEPLOY.md             完整部署说明
 
 ## 当前边界
 
-团子是 **二维写实素材与局部形变驱动**的桌面宠物；部分动作使用 AI 生成帧和补帧，尚无三维骨骼，动作接缝及遮挡处可能有轻微形变。打呼噜目前只有视觉动作，未加入音频。四季服装仍处于设计预览阶段，未加入当前版本。
+团子是 **二维写实素材与局部形变驱动**的桌面宠物；部分动作使用 AI 生成帧和离线补帧，尚无三维骨骼，动作接缝及遮挡处可能有轻微形变。原地动作的密帧序列和重跑方式见 [动作补帧](docs/animation-interpolation.md)。打呼噜目前只有视觉动作，未加入音频。四季服装仍处于设计预览阶段，未加入当前版本。
 
 第三方组件的许可文本随发布包提供，相关文本也位于 [packaging/licenses](packaging/licenses)。本项目尚未声明自身代码和形象素材的开源许可证。
